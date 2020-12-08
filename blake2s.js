@@ -179,11 +179,3 @@ function blake2sHex (input, key, outlen) {
   var output = blake2s(input, key, outlen)
   return util.toHex(output)
 }
-
-module.exports = {
-  blake2s: blake2s,
-  blake2sHex: blake2sHex,
-  blake2sInit: blake2sInit,
-  blake2sUpdate: blake2sUpdate,
-  blake2sFinal: blake2sFinal
-}
