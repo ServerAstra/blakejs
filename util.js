@@ -72,10 +72,3 @@ function testSpeed (hashFn, N, M) {
     console.log(Math.round(N / (1 << 20) / (ms / 1000) * 100) / 100 + ' MB PER SECOND')
   }
 }
-
-module.exports = {
-  normalizeInput: normalizeInput,
-  toHex: toHex,
-  debugPrint: debugPrint,
-  testSpeed: testSpeed
-}
