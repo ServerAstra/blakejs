@@ -1,7 +1,35 @@
 // BLAKE2s hash function in pure Javascript
 // Adapted from the reference implementation in RFC7693
 // Ported to Javascript by DC - https://github.com/dcposch
+var ERROR_MSG_INPUT = 'Input must be an string, Buffer or Uint8Array'
 
+// For convenience, let people hash a string, not just a Uint8Array
+function normalizeInput (input) {
+  var ret
+  if (input instanceof Uint8Array) {
+    ret = input
+  } else if (input instanceof Buffer) {
+    ret = new Uint8Array(input)
+  } else if (typeof (input) === 'string') {
+    ret = new Uint8Array(Buffer.from(input, 'utf8'))
+  } else {
+    throw new Error(ERROR_MSG_INPUT)
+  }
+  return ret
+}
+
+// Converts a Uint8Array to a hexadecimal string
+// For example, toHex([255, 0, 255]) returns "ff00ff"
+function toHex (bytes) {
+  return Array.prototype.map.call(bytes, function (n) {
+    return (n < 16 ? '0' : '') + n.toString(16)
+  }).join('')
+}
+
+// Converts any value in [0...2^32-1] to an 8-character hex string
+function uint32ToHex (val) {
+  return (0x100000000 + val).toString(16).substring(1)
+}
 
 // Little-endian byte access.
 // Expects a Uint8Array and an index
@@ -69,9 +97,8 @@ function blake2sCompress (ctx, last) {
   // ten rounds of mixing
   // uncomment the DebugPrint calls to log the computation
   // and match the RFC sample documentation
-  // util.debugPrint('          m[16]', m, 32)
+  // .debugPrint('          m[16]', m, 32)
   for (i = 0; i < 10; i++) {
-    // util.debugPrint('   (i=' + i + ')  v[16]', v, 32)
     B2S_G(0, 4, 8, 12, m[SIGMA[i * 16 + 0]], m[SIGMA[i * 16 + 1]])
     B2S_G(1, 5, 9, 13, m[SIGMA[i * 16 + 2]], m[SIGMA[i * 16 + 3]])
     B2S_G(2, 6, 10, 14, m[SIGMA[i * 16 + 4]], m[SIGMA[i * 16 + 5]])
@@ -81,12 +108,10 @@ function blake2sCompress (ctx, last) {
     B2S_G(2, 7, 8, 13, m[SIGMA[i * 16 + 12]], m[SIGMA[i * 16 + 13]])
     B2S_G(3, 4, 9, 14, m[SIGMA[i * 16 + 14]], m[SIGMA[i * 16 + 15]])
   }
-  // util.debugPrint('   (i=10) v[16]', v, 32)
 
   for (i = 0; i < 8; i++) {
     ctx.h[i] ^= v[i] ^ v[i + 8]
   }
-  // util.debugPrint('h[8]', ctx.h, 32)
 }
 
 // Creates a BLAKE2s hashing context
@@ -159,7 +184,7 @@ function blake2sFinal (ctx) {
 function blake2s (input, key, outlen) {
   // preprocess inputs
   outlen = outlen || 32
-  input = util.normalizeInput(input)
+  input = normalizeInput(input)
 
   // do the math
   var ctx = blake2sInit(outlen, key)
@@ -177,5 +202,5 @@ function blake2s (input, key, outlen) {
 // - outlen - optional output length in bytes, default 64
 function blake2sHex (input, key, outlen) {
   var output = blake2s(input, key, outlen)
-  return util.toHex(output)
+  return toHex(output)
 }
