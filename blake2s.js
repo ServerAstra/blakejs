@@ -4,14 +4,18 @@
 var ERROR_MSG_INPUT = 'Input must be an string, Buffer or Uint8Array'
 
 // For convenience, let people hash a string, not just a Uint8Array
+
 function normalizeInput (input) {
   var ret
   if (input instanceof Uint8Array) {
     ret = input
-  } else if (input instanceof Buffer) {
-    ret = new Uint8Array(input)
   } else if (typeof (input) === 'string') {
-    ret = new Uint8Array(Buffer.from(input, 'utf8'))
+    var utf8 = unescape(encodeURIComponent(input));
+    var arr = [];
+    for (var i = 0; i < utf8.length; i++) {
+      arr.push(utf8.charCodeAt(i));
+    }
+    ret = new Uint8Array(arr)
   } else {
     throw new Error(ERROR_MSG_INPUT)
   }
