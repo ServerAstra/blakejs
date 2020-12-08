@@ -2,7 +2,6 @@
 // Adapted from the reference implementation in RFC7693
 // Ported to Javascript by DC - https://github.com/dcposch
 
-var util = require('./util')
 
 // Little-endian byte access.
 // Expects a Uint8Array and an index
